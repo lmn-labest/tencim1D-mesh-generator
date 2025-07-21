@@ -1,7 +1,7 @@
 import pytest
 from tencim1d_mesh_generator.mesh import Mesh
 
-from tests.consts import COOR_CASE_1, COOR_CASE_2
+from tests.consts import COOR_CASE_1, COOR_CASE_2, CONNECTIVITY
 
 
 @pytest.fixture
@@ -80,3 +80,20 @@ def test_generate_coor(mesh: Mesh, excepted_coors: list[float]):
     mesh.generate_coor()
     for node, (excepted, x) in enumerate(zip(excepted_coors, mesh.x)):
         assert excepted == pytest.approx(x), f'Node {node + 1}'
+
+
+def test_generate_connectivity(mesh: Mesh):
+    mesh.generate_connectivity()
+
+    for element, (excepted, coon) in enumerate(zip(CONNECTIVITY, mesh.conn)):
+        assert excepted == coon, f'Node {element + 1}'
+
+
+def test_generate(mesh: Mesh):
+    mesh.generate()
+
+    for node, (excepted, x) in enumerate(zip(COOR_CASE_1, mesh.x)):
+        assert excepted == pytest.approx(x), f'Node {node + 1}'
+
+    for element, (excepted, coon) in enumerate(zip(CONNECTIVITY, mesh.conn)):
+        assert excepted == coon, f'Node {element + 1}'

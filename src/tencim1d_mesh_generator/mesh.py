@@ -5,6 +5,9 @@ class StandoffInfos:
     type: str
     params: dict[str, float]
 
+type Coor = tuple[float]
+type Connectivity = tuple[int, int, int]
+
 
 class Mesh:
 
@@ -28,7 +31,8 @@ class Mesh:
         self.formation_diamenter = formation_diamenter
         self.standoff = standoff
 
-        self.x = []
+        self._x = []
+        self._conn = []
 
     @cached_property
     def internal_radius(self) -> float:
@@ -74,6 +78,14 @@ class Mesh:
     def element_total_number(self) -> float:
         return self.casing_elements_number + self.sheath_elements_number + self.formation_elements_number
 
+    @property
+    def x(self) -> Coor:
+        return self._x
+
+    @property
+    def conn(self) -> Connectivity:
+        return self._conn
+
     def element_size_formation(self, element_number_pos: int) -> float:
         """O tamanho do elmento segue uma PG"""
         if not 0 < element_number_pos < self.formation_elements_number:
@@ -81,7 +93,7 @@ class Mesh:
         return self.initial_element_size_formation * self.formation_ratio ** (element_number_pos - 1)
 
     def generate_coor(self):
-        # Steel
+        # casing
         x = [self.internal_radius]
         for node, _ in enumerate(
             range(1, self.casing_elements_number),
@@ -90,7 +102,7 @@ class Mesh:
             x.append(x[node-1] + self.element_size_casing)
         x.append(self.pipe_radius)
 
-        # sheath
+        # Sheath
         # Interface Steel - sheath
         x.append(self.pipe_radius)
         for node, _ in enumerate(
@@ -100,7 +112,7 @@ class Mesh:
             x.append(x[node-1] + self.element_size_sheath)
         x.append(self.well_radius)
 
-        # sheath
+        # Formantion
         # Interface sheath - Formantion
         x.append(self.well_radius)
         for node, el_formation in enumerate(
@@ -110,10 +122,40 @@ class Mesh:
             x.append(x[node-1] + self.element_size_formation(el_formation))
         x.append(self.formation_radius)
 
-        self.x = x
+        self._x = tuple(x)
+
+    def generate_connectivity(self):
+
+        conn, el = [], 0
+
+        # Casing
+        for _ in range(self.casing_elements_number):
+            el += 1
+            conn.append((el, el+1, 1))
+
+        # Interface Casing - Sheath
+        el += 1
+        conn.append((el, el+1, 2))
+
+        # Sheath
+        for _ in range(self.sheath_elements_number):
+            el += 1
+            conn.append((el, el+1, 3))
+
+        # Interface Sheath - Formation
+        el += 1
+        conn.append((el, el+1, 2))
+
+        # Formation
+        for _ in range(self.formation_elements_number):
+            el += 1
+            conn.append((el, el+1, 4))
+
+        self._conn = tuple(conn)
 
     def generate(self):
         self.generate_coor()
+        self.generate_connectivity()
 
     def write(self): ...
 
