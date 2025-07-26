@@ -22,6 +22,7 @@ dev = [
 ]
 test = [
     "pytest>=8.4.1",
+    "pytest-cov>=6.2.1",
 ]
 
 [tool.ruff]
@@ -49,18 +50,18 @@ pretty = true
 
 [tool.taskipy.tasks]
 
-pre_fmt = {cmd="poetry run ruff check src tests --fix"}
+pre_fmt = {cmd="uv run ruff check src tests --fix"}
 
-fmt = {cmd="poetry run ruff format src tests", help="Formatador do código."}
+fmt = {cmd="uv run ruff format src tests", help="Formatador do código."}
 
-lin_ruff = {cmd="poetry run ruff check src tests", help="Linter com o Ruff."}
+lin_ruff = {cmd="uv run ruff check src tests", help="Linter com o Ruff."}
 
-lin_mypy = {cmd="mypy --package tests --package tencim1d_mesh_generator", help="Analisador estático de tipos."}
+lin_mypy = {cmd="uv run mypy --package tests --package tencim1d_mesh_generator", help="Analisador estático de tipos."}
 
 linter = {cmd="task lin_ruff && task lin_mypy", help="Linter."}
 
-tests = {cmd="pytest --cov=src", help="Rodando os testes."}
-tests_report = {cmd="pytest --cov-report html --cov=src", help="Rodando os testes com cobertura."}
+tests = {cmd="uv run pytest --cov=tencim1d_mesh_generator", help="Rodando os testes."}
+tests_report = {cmd="uv run pytest --cov-report html --cov=tencim1d_mesh_generator", help="Rodando os testes com cobertura."}
 
 [tool.pytest.ini_options]
 addopts = "-ra -vv --strict-markers --disable-warnings"

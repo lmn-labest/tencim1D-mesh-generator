@@ -1,0 +1,38 @@
+name: "CI"
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  lint:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      max-parallel: 2
+      matrix:
+        python-version: ['3.13']
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+        enable-cache: true
+
+    - name: Install dependencies
+      run: uv sync --locked --all-groups
+
+    - name: Run mypy
+      run:  uv run mypy --package tests --package tencim1d_mesh_generator
+
+    - name: Run linter
+      run: uv run ruff check src tests
+
+    - name: Run pytest
+      run:  uv run pytest tests --cov=tencim1d_mesh_generator

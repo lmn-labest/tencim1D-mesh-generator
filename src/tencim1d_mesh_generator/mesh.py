@@ -33,7 +33,7 @@ class Mesh:
         self.formation_diamenter = formation_diamenter
 
         self._x = (0.0,)
-        self._conn  = ((0, 0, 0),)
+        self._conn = ((0, 0, 0),)
 
     @cached_property
     def internal_radius(self) -> float:
