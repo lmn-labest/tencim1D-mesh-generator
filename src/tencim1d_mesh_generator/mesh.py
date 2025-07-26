@@ -1,19 +1,19 @@
-from functools import cached_property
 from enum import StrEnum
+from functools import cached_property
 from pathlib import Path
 
 from tencim1d_mesh_generator.standoff import Standoff
 
-
 type Coor = tuple[float]
-type Connectivity = tuple[int, int, int]
+type Connectivity = tuple[tuple[int, int, int]]
+
 
 class ThicknessEnum(StrEnum):
     THICK = 'THICK'
     THIN = 'THIN'
 
-class Mesh:
 
+class Mesh:
     casing_elements_number = 20
     sheath_elements_number = 20
     formation_elements_number = 40
@@ -32,8 +32,8 @@ class Mesh:
         self.well_diameter = well_diameter
         self.formation_diamenter = formation_diamenter
 
-        self._x = []
-        self._conn = []
+        self._x = (0.0,)
+        self._conn  = ((0, 0, 0),)
 
     @cached_property
     def internal_radius(self) -> float:
@@ -73,7 +73,11 @@ class Mesh:
 
     @cached_property
     def initial_element_size_formation(self) -> float:
-        return self.formation_thickness * (self.formation_ratio - 1.0) / (self.formation_ratio ** self.formation_elements_number - 1.0)
+        return (
+            self.formation_thickness
+            * (self.formation_ratio - 1.0)
+            / (self.formation_ratio**self.formation_elements_number - 1.0)
+        )
 
     @cached_property
     def element_total_number(self) -> float:
@@ -98,7 +102,6 @@ class Mesh:
         return self.initial_element_size_formation * self.formation_ratio ** (element_number_pos - 1)
 
     def generate_coor(self):
-
         # s = 0.0
         # if thickness and self.standoff:
         #     s = self.sheath_thickness * (1.0 - self.standoff.ratio)
@@ -110,7 +113,7 @@ class Mesh:
             range(1, self.casing_elements_number),
             start=1,
         ):
-            x.append(x[node-1] + self.element_size_casing)
+            x.append(x[node - 1] + self.element_size_casing)
         x.append(self.pipe_radius)
 
         # Interface Steel - sheath
@@ -121,7 +124,7 @@ class Mesh:
             range(1, self.sheath_elements_number),
             start=self.casing_elements_number + 2,
         ):
-            x.append(x[node-1] + self.element_size_sheath)
+            x.append(x[node - 1] + self.element_size_sheath)
 
         # Last Node Well
         x.append(self.effective_well_radius)
@@ -133,37 +136,36 @@ class Mesh:
             range(1, self.formation_elements_number),
             start=self.casing_elements_number + self.sheath_elements_number + 3,
         ):
-            x.append(x[node-1] + self.element_size_formation(el_formation))
+            x.append(x[node - 1] + self.element_size_formation(el_formation))
         x.append(self.formation_radius)
 
         self._x = tuple(x)
 
     def generate_connectivity(self):
-
         conn, el = [], 0
 
         # Casing
         for _ in range(self.casing_elements_number):
             el += 1
-            conn.append((el, el+1, 1))
+            conn.append((el, el + 1, 1))
 
         # Interface Casing - Sheath
         el += 1
-        conn.append((el, el+1, 2))
+        conn.append((el, el + 1, 2))
 
         # Sheath
         for _ in range(self.sheath_elements_number):
             el += 1
-            conn.append((el, el+1, 3))
+            conn.append((el, el + 1, 3))
 
         # Interface Sheath - Formation
         el += 1
-        conn.append((el, el+1, 2))
+        conn.append((el, el + 1, 2))
 
         # Formation
         for _ in range(self.formation_elements_number):
             el += 1
-            conn.append((el, el+1, 4))
+            conn.append((el, el + 1, 4))
 
         self._conn = tuple(conn)
 
@@ -172,9 +174,7 @@ class Mesh:
         self.generate_connectivity()
 
     def write(self, path: Path):
-
         with open(path, mode='w', encoding='utf-8') as fp:
-
             fp.write('coordinates\n')
             for node, x in enumerate(self.x, start=1):
                 fp.write(f'{node} {x:10.4f}\n')
@@ -189,7 +189,6 @@ class Mesh:
 
 
 class MeshWithStandoff(Mesh):
-
     def __init__(
         self,
         internal_diameter: float,
@@ -198,7 +197,6 @@ class MeshWithStandoff(Mesh):
         standoff: Standoff,
         thickness: str = ThicknessEnum.THIN.value,
         formation_diamenter: float = 60.0,
-
     ):
         super().__init__(
             internal_diameter,
@@ -237,32 +235,30 @@ def make_mesh(
     base_dir: Path,
     standoff: Standoff | None = None,
 ):
-
     if not base_dir.exists():
         base_dir.mkdir(exist_ok=True)
 
     if standoff:
-        mesh = MeshWithStandoff(
+        mesh_with_standoff = MeshWithStandoff(
             internal_diameter=internal_diameter,
             well_diameter=well_diameter,
             pipe_diameter=pipe_diameter,
             standoff=standoff,
             thickness=ThicknessEnum.THICK,
         )
-        mesh.generate()
-        mesh.write(path= base_dir / 'mesh_thick.dat')
+        mesh_with_standoff.generate()
+        mesh_with_standoff.write(path=base_dir / 'mesh_thick.dat')
 
-        mesh = MeshWithStandoff(
+        mesh_with_standoff = MeshWithStandoff(
             internal_diameter=internal_diameter,
             well_diameter=well_diameter,
             pipe_diameter=pipe_diameter,
             standoff=standoff,
             thickness=ThicknessEnum.THIN,
         )
-        mesh.generate()
-        mesh.write(path=base_dir / 'mesh_thin.dat')
+        mesh_with_standoff.generate()
+        mesh_with_standoff.write(path=base_dir / 'mesh_thin.dat')
     else:
-
         mesh = Mesh(
             internal_diameter=internal_diameter,
             well_diameter=well_diameter,

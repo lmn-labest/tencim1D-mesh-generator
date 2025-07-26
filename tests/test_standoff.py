@@ -1,7 +1,6 @@
 import pytest
 
-from tencim1d_mesh_generator.standoff import StandoffRigid, StandoffFlexible
-
+from tencim1d_mesh_generator.standoff import StandoffFlexible, StandoffRigid
 
 
 @pytest.mark.parametrize(
@@ -14,7 +13,6 @@ from tencim1d_mesh_generator.standoff import StandoffRigid, StandoffFlexible
     ids=['mesh-1', 'mesh-2', 'mesh-3'],
 )
 def test_standoff_rigid_ratio(well_diameter, pipe_diameter, sc, ratio):
-
     standoff = StandoffRigid(well_diameter, pipe_diameter, sc)
     assert standoff.ratio == pytest.approx(ratio)
 

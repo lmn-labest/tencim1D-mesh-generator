@@ -18,7 +18,52 @@ dev = [
     "ipdb>=0.13.13",
     "mypy>=1.17.0",
     "ruff>=0.12.4",
+    "taskipy>=1.14.1",
 ]
 test = [
     "pytest>=8.4.1",
+]
+
+[tool.ruff]
+
+line-length = 120
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint]
+
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
+pretty = true
+
+[tool.taskipy.tasks]
+
+pre_fmt = {cmd="poetry run ruff check src tests --fix"}
+
+fmt = {cmd="poetry run ruff format src tests", help="Formatador do código."}
+
+lin_ruff = {cmd="poetry run ruff check src tests", help="Linter com o Ruff."}
+
+lin_mypy = {cmd="mypy --package tests --package tencim1d_mesh_generator", help="Analisador estático de tipos."}
+
+linter = {cmd="task lin_ruff && task lin_mypy", help="Linter."}
+
+tests = {cmd="pytest --cov=src", help="Rodando os testes."}
+tests_report = {cmd="pytest --cov-report html --cov=src", help="Rodando os testes com cobertura."}
+
+[tool.pytest.ini_options]
+addopts = "-ra -vv --strict-markers --disable-warnings"
+testpaths = [
+    "tests",
 ]
