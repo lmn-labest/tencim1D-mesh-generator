@@ -102,10 +102,6 @@ class Mesh:
         return self.initial_element_size_formation * self.formation_ratio ** (element_number_pos - 1)
 
     def generate_coor(self):
-        # s = 0.0
-        # if thickness and self.standoff:
-        #     s = self.sheath_thickness * (1.0 - self.standoff.ratio)
-        #     s = s if thickness == ThicknessEnum.THICK.value else -s
 
         # casing
         x = [self.internal_radius]

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 
 class Standoff(ABC):
-    def __init__(self, well_diameter: float, pipe_diameter: float):
+    def __init__(self, pipe_diameter: float, well_diameter: float):
         self.well_diameter = well_diameter
         self.pipe_diameter = pipe_diameter
 
@@ -12,8 +12,8 @@ class Standoff(ABC):
 
 
 class StandoffRigid(Standoff):
-    def __init__(self, well_diameter: float, pipe_diameter: float, sc: float):
-        super().__init__(well_diameter, pipe_diameter)
+    def __init__(self, pipe_diameter: float, well_diameter: float, sc: float):
+        super().__init__(pipe_diameter, well_diameter)
         self.sc = sc
 
     @property
@@ -24,13 +24,13 @@ class StandoffRigid(Standoff):
 class StandoffFlexible(Standoff):
     def __init__(
         self,
-        well_diameter: float,
         pipe_diameter: float,
+        well_diameter: float,
         lateral_forces: float,
         restoring_force: float,
         gamma_max: float,
     ):
-        super().__init__(well_diameter, pipe_diameter)
+        super().__init__(pipe_diameter, well_diameter)
         self.lateral_forces = lateral_forces
         self.restoring_force = restoring_force
         self.gamma_max = gamma_max

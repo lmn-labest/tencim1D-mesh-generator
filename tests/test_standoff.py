@@ -13,7 +13,7 @@ from tencim1d_mesh_generator.standoff import StandoffFlexible, StandoffRigid
     ids=['mesh-1', 'mesh-2', 'mesh-3'],
 )
 def test_standoff_rigid_ratio(well_diameter, pipe_diameter, sc, ratio):
-    standoff = StandoffRigid(well_diameter, pipe_diameter, sc)
+    standoff = StandoffRigid(pipe_diameter, well_diameter, sc)
     assert standoff.ratio == pytest.approx(ratio)
 
 
@@ -33,5 +33,5 @@ def test_standoff_flexible_ratio(
     gamma_max,
     ratio,
 ):
-    standoff = StandoffFlexible(well_diameter, pipe_diameter, lateral_forces, restoring_force, gamma_max)
+    standoff = StandoffFlexible(pipe_diameter, well_diameter, lateral_forces, restoring_force, gamma_max)
     assert standoff.ratio == pytest.approx(ratio)
