@@ -102,7 +102,6 @@ class Mesh:
         return self.initial_element_size_formation * self.formation_ratio ** (element_number_pos - 1)
 
     def generate_coor(self):
-
         # casing
         x = [self.internal_radius]
         for node, _ in enumerate(
