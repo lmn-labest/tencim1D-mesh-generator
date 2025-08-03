@@ -172,7 +172,7 @@ class Mesh:
         with open(path, mode='w', encoding='utf-8') as fp:
             fp.write('coordinates\n')
             for node, x in enumerate(self.x, start=1):
-                fp.write(f'{node} {x:10.4f}\n')
+                fp.write(f'{node} {x:10.5f}\n')
             fp.write('end coordinates\n')
 
             fp.write('bar2\n')
