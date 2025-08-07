@@ -1,6 +1,6 @@
 """
-internal_diameter = 1.0
-pipe_diameter = 3.0
+casing_internal_diameter = 1.0
+casing_external_diameter = 3.0
 well_diameter = 6.0
 """
 
@@ -94,8 +94,8 @@ COOR_CASE_1 = (
 
 
 """
-internal_diameter = 0.15716
-pipe_diameter = 0.17304
+casing_internal_diameter = 0.15716
+casing_external_diameter = 0.17304
 well_diameter = 0.20955
 """
 

@@ -4,9 +4,9 @@ from tencim1d_mesh_generator.standoff import StandoffRigid
 
 def test_make_mesh(tmp_path):
     make_mesh(
-        internal_diameter=0.15,
-        well_diameter=0.17,
-        pipe_diameter=0.21,
+        casing_internal_diameter=0.15,
+        casing_external_diameter=0.17,
+        well_diameter=0.21,
         base_dir=tmp_path / 'mesh',
     )
 
@@ -15,14 +15,14 @@ def test_make_mesh(tmp_path):
 
 def test_make_mesh_standoff(tmp_path):
     standoff = StandoffRigid(
-        pipe_diameter=0.17,
+        casing_external_diameter=0.17,
         well_diameter=0.21,
         sc=0.01,
     )
 
     make_mesh(
-        internal_diameter=0.15,
-        pipe_diameter=0.17,
+        casing_internal_diameter=0.15,
+        casing_external_diameter=0.17,
         well_diameter=0.21,
         base_dir=tmp_path / 'mesh',
         standoff=standoff,

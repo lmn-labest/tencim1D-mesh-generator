@@ -8,6 +8,9 @@ type Coor = tuple[float]
 type Connectivity = tuple[tuple[int, int, int]]
 
 
+class MeshDiameterInvalid(Exception): ...
+
+
 class ThicknessEnum(StrEnum):
     THICK = 'THICK'
     THIN = 'THIN'
@@ -22,26 +25,34 @@ class Mesh:
 
     def __init__(
         self,
-        internal_diameter: float,
-        pipe_diameter: float,
+        casing_internal_diameter: float,
+        casing_external_diameter: float,
         well_diameter: float,
         formation_diamenter: float = 60.0,
     ):
-        self.internal_diameter = internal_diameter
-        self.pipe_diameter = pipe_diameter
+        self.casing_internal_diameter = casing_internal_diameter
+        self.casing_external_diameter = casing_external_diameter
         self.well_diameter = well_diameter
         self.formation_diamenter = formation_diamenter
+
+        if not (casing_internal_diameter < casing_external_diameter < well_diameter < formation_diamenter):
+            raise MeshDiameterInvalid(
+                'Diametro precisa seguir a relação '
+                'casing_internal_diameter < casing_external_diameter < well_diameter < formation_diamenter. '
+                'Foi passado: '
+                f'{casing_internal_diameter=}, {casing_external_diameter=}, {well_diameter=} e {formation_diamenter=}'
+            )
 
         self._x = (0.0,)
         self._conn = ((0, 0, 0),)
 
     @cached_property
     def internal_radius(self) -> float:
-        return 0.5 * self.internal_diameter
+        return 0.5 * self.casing_internal_diameter
 
     @cached_property
     def pipe_radius(self) -> float:
-        return 0.5 * self.pipe_diameter
+        return 0.5 * self.casing_external_diameter
 
     @cached_property
     def well_radius(self) -> float:
@@ -186,16 +197,16 @@ class Mesh:
 class MeshWithStandoff(Mesh):
     def __init__(
         self,
-        internal_diameter: float,
-        pipe_diameter: float,
+        casing_internal_diameter: float,
+        casing_external_diameter: float,
         well_diameter: float,
         standoff: Standoff,
         thickness: str = ThicknessEnum.THIN.value,
         formation_diamenter: float = 60.0,
     ):
         super().__init__(
-            internal_diameter,
-            pipe_diameter,
+            casing_internal_diameter,
+            casing_external_diameter,
             well_diameter,
             formation_diamenter,
         )
@@ -224,9 +235,9 @@ class MeshWithStandoff(Mesh):
 
 
 def make_mesh(
-    internal_diameter: float,
+    casing_internal_diameter: float,
     well_diameter: float,
-    pipe_diameter: float,
+    casing_external_diameter: float,
     base_dir: Path,
     standoff: Standoff | None = None,
 ):
@@ -235,9 +246,9 @@ def make_mesh(
 
     if standoff:
         mesh_with_standoff = MeshWithStandoff(
-            internal_diameter=internal_diameter,
+            casing_internal_diameter=casing_internal_diameter,
             well_diameter=well_diameter,
-            pipe_diameter=pipe_diameter,
+            casing_external_diameter=casing_external_diameter,
             standoff=standoff,
             thickness=ThicknessEnum.THICK,
         )
@@ -245,9 +256,9 @@ def make_mesh(
         mesh_with_standoff.write(path=base_dir / 'mesh_thick.dat')
 
         mesh_with_standoff = MeshWithStandoff(
-            internal_diameter=internal_diameter,
+            casing_internal_diameter=casing_internal_diameter,
             well_diameter=well_diameter,
-            pipe_diameter=pipe_diameter,
+            casing_external_diameter=casing_external_diameter,
             standoff=standoff,
             thickness=ThicknessEnum.THIN,
         )
@@ -255,9 +266,9 @@ def make_mesh(
         mesh_with_standoff.write(path=base_dir / 'mesh_thin.dat')
     else:
         mesh = Mesh(
-            internal_diameter=internal_diameter,
+            casing_internal_diameter=casing_internal_diameter,
             well_diameter=well_diameter,
-            pipe_diameter=pipe_diameter,
+            casing_external_diameter=casing_external_diameter,
         )
 
         mesh.generate()

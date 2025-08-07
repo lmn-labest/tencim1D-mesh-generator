@@ -6,7 +6,7 @@ readme = "README.md"
 authors = [
     { name = "Henrique C. C. de Andrade", email = "henrique.ccda@gmail.com" }
 ]
-requires-python = ">=3.12"
+requires-python = ">= 3.11, < 3.14"
 dependencies = []
 
 [build-system]

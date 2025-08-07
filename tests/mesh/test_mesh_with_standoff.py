@@ -11,11 +11,11 @@ from tests.consts import (
 
 @pytest.fixture
 def mesh_with_standoff():
-    standoff = StandoffRigid(well_diameter=4.0, pipe_diameter=2.0, sc=0.8)
+    standoff = StandoffRigid(well_diameter=4.0, casing_external_diameter=2.0, sc=0.8)
 
     return MeshWithStandoff(
-        internal_diameter=1.0,
-        pipe_diameter=2.0,
+        casing_internal_diameter=1.0,
+        casing_external_diameter=2.0,
         well_diameter=4.0,
         standoff=standoff,
     )

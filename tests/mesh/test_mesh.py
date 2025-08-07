@@ -1,6 +1,6 @@
 import pytest
 
-from tencim1d_mesh_generator.mesh import Mesh
+from tencim1d_mesh_generator.mesh import Mesh, MeshDiameterInvalid
 from tests.consts import CONNECTIVITY, COOR_CASE_1, COOR_CASE_2
 
 
@@ -125,3 +125,31 @@ def test_write(mesh: Mesh, tmp_path):
     assert 'bar2' in content
     assert 'end bar2' in content
     assert 'return' in content
+
+
+@pytest.mark.parametrize(
+    'casing_internal_diameter, casing_external_diameter, well_diameter',
+    [
+        (1.0, 6.0, 3.0),
+        (3.0, 1.0, 6.0),
+        (6.0, 3.0, 1.0),
+        (6.0, 3.0, 100.0),
+        (6.0, 80.0, 100.0),
+        (70.0, 80.0, 100.0),
+    ],
+    ids=[
+        'r2>r3',
+        'r1>r3',
+        'r1>r2>r3',
+        'r3>formation',
+        'r2>formation',
+        'r1>formation',
+    ],
+)
+def test_invalid_diameter(casing_internal_diameter, casing_external_diameter, well_diameter):
+    with pytest.raises(MeshDiameterInvalid):
+        Mesh(
+            casing_internal_diameter,
+            casing_external_diameter,
+            well_diameter,
+        )
