@@ -1,6 +1,10 @@
 import pytest
 
-from tencim1d_mesh_generator.standoff import StandoffFlexible, StandoffRigid
+from tencim1d_mesh_generator.standoff import (
+    StandoffFlexible,
+    StandoffRatioInvalid,
+    StandoffRigid,
+)
 
 
 @pytest.mark.parametrize(
@@ -65,3 +69,19 @@ def test_standoff_flexible_ratio(
 ):
     standoff = StandoffFlexible(casing_external_diameter, well_diameter, lateral_forces, restoring_force, gamma_max)
     assert standoff.ratio == pytest.approx(ratio)
+
+
+@pytest.mark.parametrize(
+    'well_diameter,casing_external_diameter,dc',
+    [
+        (2.0, 1.0, 1.009),
+        (3.0, 1.0, 3.001),
+    ],
+    ids=['mesh-1', 'mesh-2'],
+)
+def test_standoff_validate_ratio(well_diameter, casing_external_diameter, dc):
+    standoff = StandoffRigid(casing_external_diameter, well_diameter, dc)
+
+    msg = 'A Razão de standoff precisa esta entre 0.01 e 1.0'
+    with pytest.raises(StandoffRatioInvalid, match=msg):
+        standoff.validate_ratio()

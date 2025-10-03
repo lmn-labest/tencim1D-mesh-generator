@@ -245,6 +245,8 @@ def make_mesh(
         base_dir.mkdir(exist_ok=True)
 
     if standoff:
+        standoff.validate_ratio()
+
         mesh_with_standoff = MeshWithStandoff(
             casing_internal_diameter=casing_internal_diameter,
             well_diameter=well_diameter,
