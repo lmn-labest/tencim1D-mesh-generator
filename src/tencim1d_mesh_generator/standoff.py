@@ -10,15 +10,30 @@ class Standoff(ABC):
     @abstractmethod
     def ratio(self) -> float: ...
 
+    @property
+    def la(self) -> float:
+        return (self.well_diameter - self.casing_external_diameter) * 0.5
+
 
 class StandoffRigid(Standoff):
-    def __init__(self, casing_external_diameter: float, well_diameter: float, sc: float):
+    def __init__(
+        self,
+        casing_external_diameter: float,
+        well_diameter: float,
+        dc: float,
+        gamma_max: float = 0.0,
+    ):
         super().__init__(casing_external_diameter, well_diameter)
-        self.sc = sc
+        self.dc = dc
+        self.gamma_max = gamma_max
+
+    @property
+    def sc(self) -> float:
+        return 0.5 * (self.dc - self.casing_external_diameter)
 
     @property
     def ratio(self) -> float:
-        return 2.0 * self.sc / (self.well_diameter - self.casing_external_diameter)
+        return (self.sc - self.gamma_max) / self.la
 
 
 class StandoffFlexible(Standoff):
@@ -36,7 +51,9 @@ class StandoffFlexible(Standoff):
         self.gamma_max = gamma_max
 
     @property
+    def sc(self) -> float:
+        return (1 - (self.lateral_forces / (3 * self.restoring_force))) * self.la
+
+    @property
     def ratio(self) -> float:
-        la = (self.well_diameter - self.casing_external_diameter) * 0.5
-        sc = (1 - (self.lateral_forces / (3 * self.restoring_force))) * la
-        return (sc - self.gamma_max) / la
+        return (self.sc - self.gamma_max) / self.la

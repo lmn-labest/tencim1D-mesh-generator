@@ -107,7 +107,7 @@ class Mesh:
         return self.well_radius
 
     def element_size_formation(self, element_number_pos: int) -> float:
-        """O tamanho do elmento segue uma PG"""
+        """O tamanho do elemento é uma PG"""
         if not 0 < element_number_pos < self.formation_elements_number:
             raise Exception('Numero de elemento invalido')
         return self.initial_element_size_formation * self.formation_ratio ** (element_number_pos - 1)

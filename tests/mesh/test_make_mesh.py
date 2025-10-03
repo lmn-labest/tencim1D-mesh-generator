@@ -17,7 +17,7 @@ def test_make_mesh_standoff(tmp_path):
     standoff = StandoffRigid(
         casing_external_diameter=0.17,
         well_diameter=0.21,
-        sc=0.01,
+        dc=0.19,
     )
 
     make_mesh(
