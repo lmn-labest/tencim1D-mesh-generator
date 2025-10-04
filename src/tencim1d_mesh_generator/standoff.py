@@ -4,23 +4,34 @@ from abc import ABC, abstractmethod
 class StandoffRatioInvalid(Exception): ...
 
 
-class Standoff(ABC):
-    def __init__(self, casing_external_diameter: float, well_diameter: float):
-        self.well_diameter = well_diameter
-        self.casing_external_diameter = casing_external_diameter
-
+class StandoffABC(ABC):
     @property
     @abstractmethod
     def ratio(self) -> float: ...
-
-    @property
-    def la(self) -> float:
-        return (self.well_diameter - self.casing_external_diameter) * 0.5
 
     def validate_ratio(self) -> bool:
         if not 0.01 <= self.ratio <= 1.0:
             raise StandoffRatioInvalid('A Razão de standoff precisa esta entre 0.01 e 1.0')
         return True
+
+
+class Standoff(StandoffABC):
+    def __init__(self, casing_external_diameter: float, well_diameter: float):
+        self.well_diameter = well_diameter
+        self.casing_external_diameter = casing_external_diameter
+
+    @property
+    def la(self) -> float:
+        return (self.well_diameter - self.casing_external_diameter) * 0.5
+
+
+class StandoffGeneric(StandoffABC):
+    def __init__(self, ratio: float):
+        self._ratio = ratio
+
+    @property
+    def ratio(self) -> float:
+        return self._ratio
 
 
 class StandoffRigid(Standoff):

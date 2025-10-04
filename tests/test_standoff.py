@@ -2,9 +2,20 @@ import pytest
 
 from tencim1d_mesh_generator.standoff import (
     StandoffFlexible,
+    StandoffGeneric,
     StandoffRatioInvalid,
     StandoffRigid,
 )
+
+
+@pytest.mark.parametrize(
+    'ratio',
+    [0.5, 0.1, 0.8],
+    ids=['mesh-1', 'mesh-2', 'mesh-3'],
+)
+def test_standoff_rigid_generic(ratio):
+    standoff = StandoffGeneric(ratio)
+    assert standoff.ratio == pytest.approx(ratio)
 
 
 @pytest.mark.parametrize(
