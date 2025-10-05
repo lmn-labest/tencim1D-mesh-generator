@@ -2,13 +2,11 @@ from enum import StrEnum
 from functools import cached_property
 from pathlib import Path
 
+from tencim1d_mesh_generator.errors import MeshDiameterInvalid
 from tencim1d_mesh_generator.standoff import Standoff
 
 type Coor = tuple[float]
 type Connectivity = tuple[tuple[int, int, int]]
-
-
-class MeshDiameterInvalid(Exception): ...
 
 
 class ThicknessEnum(StrEnum):
