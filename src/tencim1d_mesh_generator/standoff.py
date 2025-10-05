@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
-
-class StandoffRatioInvalid(Exception): ...
+from tencim1d_mesh_generator.errors import StandoffRatioInvalid
 
 
 class StandoffABC(ABC):
@@ -11,7 +10,9 @@ class StandoffABC(ABC):
 
     def validate_ratio(self) -> bool:
         if not 0.01 <= self.ratio <= 1.0:
-            raise StandoffRatioInvalid('A Razão de standoff precisa esta entre 0.01 e 1.0')
+            raise StandoffRatioInvalid(
+                f'A Razão de standoff precisa esta entre 0.01 e 1.0, valor obtido foi {self.ratio}'
+            )
         return True
 
 
