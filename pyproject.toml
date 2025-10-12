@@ -10,15 +10,14 @@ dynamic = ["version"]
 dependencies = []
 
 [build-system]
-requires = ["setuptools>=80", "setuptools-scm>=8"]
-build-backend = "setuptools.build_meta"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
     "ipdb>=0.13.13",
     "mypy>=1.17.0",
     "ruff>=0.12.4",
-    "setuptools-scm>=9.2.1",
     "taskipy>=1.14.1",
 ]
 test = [
@@ -69,3 +68,6 @@ addopts = "-ra -vv --strict-markers --disable-warnings"
 testpaths = [
     "tests",
 ]
+
+[tool.hatch.version]
+source = "vcs"
