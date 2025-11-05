@@ -29,7 +29,7 @@ jobs:
       run: uv sync --locked --all-groups
 
     - name: Run mypy
-      run:  uv run mypy --package tests --package tencim1d_mesh_generator
+      run:  uv run ty check
 
     - name: Run linter
       run: uv run ruff check src tests
