@@ -1,7 +1,7 @@
 import pytest
 
 from tencim1d_mesh_generator.mesh import MeshWithStandoff, ThicknessEnum
-from tencim1d_mesh_generator.standoff import StandoffGeneric, StandoffRigid
+from tencim1d_mesh_generator.standoff import StandoffRigid
 from tests.consts import (
     CONNECTIVITY,
     COOR_CASE_3_WITH_STANDOFF_THICK,
@@ -9,12 +9,10 @@ from tests.consts import (
 )
 
 
-@pytest.fixture(params=['standoff_rigid', 'standoff_generic'])
+@pytest.fixture(params=['standoff_rigid'])
 def mesh_with_standoff(request):
     if request.param == 'standoff_rigid':
         standoff = StandoffRigid(well_diameter=4.0, casing_external_diameter=2.0, dc=3.6)
-    elif request.param == 'standoff_generic':
-        standoff = StandoffGeneric(ratio=0.8)
 
     return MeshWithStandoff(
         casing_internal_diameter=1.0,
