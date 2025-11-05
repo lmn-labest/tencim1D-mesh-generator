@@ -3,7 +3,7 @@ from functools import cached_property
 from pathlib import Path
 
 from tencim1d_mesh_generator.errors import MeshDiameterInvalid
-from tencim1d_mesh_generator.standoff import Standoff
+from tencim1d_mesh_generator.standoff import StandoffABC
 
 type Coor = tuple[float]
 type Connectivity = tuple[tuple[int, int, int]]
@@ -198,7 +198,7 @@ class MeshWithStandoff(Mesh):
         casing_internal_diameter: float,
         casing_external_diameter: float,
         well_diameter: float,
-        standoff: Standoff,
+        standoff: StandoffABC,
         thickness: str = ThicknessEnum.THIN.value,
         formation_diamenter: float = 60.0,
     ):
@@ -237,7 +237,7 @@ def make_mesh(
     well_diameter: float,
     casing_external_diameter: float,
     base_dir: Path,
-    standoff: Standoff | None = None,
+    standoff: StandoffABC | None = None,
 ):
     if not base_dir.exists():
         base_dir.mkdir(exist_ok=True)

@@ -15,8 +15,6 @@ class StandoffABC(ABC):
             )
         return True
 
-
-class Standoff(StandoffABC):
     def __init__(self, casing_external_diameter: float, well_diameter: float):
         self.well_diameter = well_diameter
         self.casing_external_diameter = casing_external_diameter
@@ -26,16 +24,7 @@ class Standoff(StandoffABC):
         return (self.well_diameter - self.casing_external_diameter) * 0.5
 
 
-class StandoffGeneric(StandoffABC):
-    def __init__(self, ratio: float):
-        self._ratio = ratio
-
-    @property
-    def ratio(self) -> float:
-        return self._ratio
-
-
-class StandoffRigid(Standoff):
+class StandoffRigid(StandoffABC):
     def __init__(
         self,
         casing_external_diameter: float,
@@ -56,7 +45,7 @@ class StandoffRigid(Standoff):
         return (self.sc - self.gamma_max) / self.la
 
 
-class StandoffFlexible(Standoff):
+class StandoffFlexible(StandoffABC):
     def __init__(
         self,
         casing_external_diameter: float,
