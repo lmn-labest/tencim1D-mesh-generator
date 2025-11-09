@@ -11,7 +11,7 @@ class StandoffABC(ABC):
     def validate_ratio(self) -> bool:
         if not 0.01 <= self.ratio <= 1.0:
             raise StandoffRatioInvalid(
-                f'A Razão de standoff precisa esta entre 0.01 e 1.0, valor obtido foi {self.ratio}'
+                f'A Razão de standoff precisa estar entre 0.01 e 1.0, valor obtido foi {self.ratio}'
             )
         return True
 
