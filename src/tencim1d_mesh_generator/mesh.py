@@ -27,11 +27,13 @@ class Mesh:
         casing_external_diameter: float,
         well_diameter: float,
         formation_diamenter: float = 60.0,
+        decimal_places: int = 8,
     ):
         self.casing_internal_diameter = casing_internal_diameter
         self.casing_external_diameter = casing_external_diameter
         self.well_diameter = well_diameter
         self.formation_diamenter = formation_diamenter
+        self.decimal_places = decimal_places
 
         if not (casing_internal_diameter < casing_external_diameter < well_diameter < formation_diamenter):
             raise MeshDiameterInvalid(
@@ -181,7 +183,7 @@ class Mesh:
         with open(path, mode='w', encoding='utf-8') as fp:
             fp.write('coordinates\n')
             for node, x in enumerate(self.x, start=1):
-                fp.write(f'{node} {x:10.5f}\n')
+                fp.write(f'{node} {x:10.{self.decimal_places}f}\n')
             fp.write('end coordinates\n')
 
             fp.write('bar2\n')
@@ -201,12 +203,14 @@ class MeshWithStandoff(Mesh):
         standoff: StandoffABC,
         thickness: str = ThicknessEnum.THIN.value,
         formation_diamenter: float = 60.0,
+        decimal_places: int = 8,
     ):
         super().__init__(
             casing_internal_diameter,
             casing_external_diameter,
             well_diameter,
             formation_diamenter,
+            decimal_places,
         )
 
         self.thickness = thickness
@@ -214,6 +218,22 @@ class MeshWithStandoff(Mesh):
 
     @cached_property
     def effective_well_radius(self) -> float:
+        """
+        Raio para lado fino:
+            thin_radius = pipe_radius + sheath_thickness - sheath_thickness * (1.0 - standoff.ratio)
+
+        Raio para lado espesso:
+            thick_radius = pipe_radius + sheath_thickness + sheath_thickness * (1.0 - standoff.ratio)
+
+        Considerando,
+
+            pipe_radius + sheath_thickness = well_radius
+
+        Portanto,
+
+            thin_radius = well_radius - sheath_thickness * (1.0 - standoff.ratio)
+            thick_radius = well_radius + sheath_thickness * (1.0 - standoff.ratio)
+        """
         st = self.sheath_thickness * (1.0 - self.standoff.ratio)
         st = st if self.thickness == ThicknessEnum.THICK.value else -st
 
@@ -234,10 +254,11 @@ class MeshWithStandoff(Mesh):
 
 def make_mesh(
     casing_internal_diameter: float,
-    well_diameter: float,
     casing_external_diameter: float,
+    well_diameter: float,
     base_dir: Path,
     standoff: StandoffABC | None = None,
+    decimal_places: int = 8,
 ):
     if not base_dir.exists():
         base_dir.mkdir(exist_ok=True)
@@ -251,6 +272,7 @@ def make_mesh(
             casing_external_diameter=casing_external_diameter,
             standoff=standoff,
             thickness=ThicknessEnum.THICK,
+            decimal_places=decimal_places,
         )
         mesh_with_standoff.generate()
         mesh_with_standoff.write(path=base_dir / 'mesh_thick.dat')
@@ -261,6 +283,7 @@ def make_mesh(
             casing_external_diameter=casing_external_diameter,
             standoff=standoff,
             thickness=ThicknessEnum.THIN,
+            decimal_places=decimal_places,
         )
         mesh_with_standoff.generate()
         mesh_with_standoff.write(path=base_dir / 'mesh_thin.dat')
@@ -269,6 +292,7 @@ def make_mesh(
             casing_internal_diameter=casing_internal_diameter,
             well_diameter=well_diameter,
             casing_external_diameter=casing_external_diameter,
+            decimal_places=decimal_places,
         )
 
         mesh.generate()
