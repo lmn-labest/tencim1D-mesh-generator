@@ -82,6 +82,6 @@ def test_standoff_flexible_ratio(
 def test_standoff_validate_ratio(well_diameter, casing_external_diameter, dc):
     standoff = StandoffRigid(casing_external_diameter, well_diameter, dc)
 
-    msg = 'A Razão de standoff precisa esta entre 0.01 e 1.0'
+    msg = r'A Razão de standoff precisa estar entre 0\.01 e 1\.0, valor obtido foi \d.\d+$'
     with pytest.raises(StandoffRatioInvalid, match=msg):
         standoff.validate_ratio()
