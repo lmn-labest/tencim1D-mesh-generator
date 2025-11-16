@@ -1,10 +1,7 @@
 import pytest
 
-from tencim1d_mesh_generator.standoff import (
-    StandoffFlexible,
-    StandoffRatioInvalid,
-    StandoffRigid,
-)
+from tencim1d_mesh_generator.errors import StandoffInfosInvalid, StandoffRatioInvalid
+from tencim1d_mesh_generator.standoff import StandoffFlexible, StandoffRigid
 
 
 @pytest.mark.parametrize(
@@ -85,3 +82,29 @@ def test_standoff_validate_ratio(well_diameter, casing_external_diameter, dc):
     msg = r'A Razão de standoff precisa estar entre 0\.01 e 1\.0, valor obtido foi \d.\d+$'
     with pytest.raises(StandoffRatioInvalid, match=msg):
         standoff.validate_ratio()
+
+
+@pytest.mark.parametrize(
+    'well_diameter,casing_external_diameter,dc,gamma_max,error',
+    [
+        (2.0, 1.0, 2.1, 0.0, 'O parâmentro Dc inválido: 1.0 <= 2.1 <= 2.0'),
+        (3.0, 1.0, 0.9, 0.0, 'O parâmentro Dc inválido: 1.0 <= 0.9 <= 3.0'),
+        (3.0, 1.0, 1.1, 0.1, 'Os parâmentros Dc e gamma_max inválidos: '),
+    ],
+    ids=[
+        'dc>well_diameter',
+        'dc<casing_external_diameter',
+        'dc - 2* gamma_max<casing_external_diameter',
+    ],
+)
+def test_rigid_standoff_validate(
+    well_diameter: float,
+    casing_external_diameter: float,
+    dc: float,
+    gamma_max: float,
+    error: str,
+):
+    standoff = StandoffRigid(casing_external_diameter, well_diameter, dc, gamma_max)
+
+    with pytest.raises(StandoffInfosInvalid, match=error):
+        standoff.validate_params()

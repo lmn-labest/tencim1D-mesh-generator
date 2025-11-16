@@ -1,12 +1,15 @@
 from abc import ABC, abstractmethod
 
-from tencim1d_mesh_generator.errors import StandoffRatioInvalid
+from tencim1d_mesh_generator.errors import StandoffInfosInvalid, StandoffRatioInvalid
 
 
 class StandoffABC(ABC):
     @property
     @abstractmethod
     def ratio(self) -> float: ...
+
+    def validate_infos(self) -> bool:
+        return self.validate_ratio()
 
     def validate_ratio(self) -> bool:
         if not 0.01 <= self.ratio <= 1.0:
@@ -35,6 +38,23 @@ class StandoffRigid(StandoffABC):
         super().__init__(casing_external_diameter, well_diameter)
         self.dc = dc
         self.gamma_max = gamma_max
+
+    def validate_infos(self) -> bool:
+        return super().validate_ratio() and self.validate_params()
+
+    def validate_params(self) -> bool:
+        if not (self.well_diameter >= self.dc >= self.casing_external_diameter):
+            raise StandoffInfosInvalid(
+                f'O parâmentro Dc inválido: {self.casing_external_diameter} <= {self.dc} <= {self.well_diameter}'
+            )
+
+        if not (self.well_diameter >= self.dc - 2 * self.gamma_max >= self.casing_external_diameter):
+            raise StandoffInfosInvalid(
+                'Os parâmentros Dc e gamma_max inválidos: '
+                f'{self.casing_external_diameter} <= {self.dc} - 2 * {self.gamma_max} <= {self.well_diameter}'
+            )
+
+        return True
 
     @property
     def sc(self) -> float:
